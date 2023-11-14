@@ -54,8 +54,10 @@ public class Client {
                 } else{
                     resultStr = resultStr.substring(1);
                 }
+
                 System.out.println("Sent result to server: " + resultStr);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -4,7 +4,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 
 import org.newsclub.net.unix.AFUNIXServerSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
@@ -12,9 +14,13 @@ import org.newsclub.net.unix.AFUNIXSocketAddress;
 public class Manager {
     private static  Integer x;
 
+    private static Process processF;
+
+    private static Process processG;
+
     private static int clientsToWaitFor = 2;
 
-    public Manager() throws IOException, InterruptedException, TimeoutException {
+    public Manager()  {
         Scanner sc = new Scanner(System.in);
         int x = 0;
         System.out.println("Please, enter x: ");
@@ -27,8 +33,11 @@ public class Manager {
         runManager();
     }
 
-    public static void runManager() throws IOException, InterruptedException, TimeoutException {
+    public static void runManager()  {
         ArrayList<String> receivedValues = new ArrayList<>();
+
+        initProcesses();
+
         File socketFile = new File(new File(System.getProperty("java.io.tmpdir")), "junixsocket-test.sock");
         try (AFUNIXServerSocket serverSocket = AFUNIXServerSocket.newInstance()) {
             serverSocket.bind( AFUNIXSocketAddress.of(socketFile));
@@ -58,14 +67,14 @@ public class Manager {
         parseResult(receivedValues);
     }
 
-   private static void parseResult(List<String> array) {
-       String elemF = array.get(0);
-       String elemG = array.get(1);
+   private static void parseResult(List<String> array){
+        String elemF = array.get(0);
+        String elemG = array.get(1);
 
-       if (elemF.charAt(1) == 'c') {
+        if (elemF.charAt(1) == 'c') {
            System.out.println("Critical failure of function F");
 
-       } else if (elemG.charAt(1) == 'c') {
+       } else if(elemG.charAt(1) == 'c') {
            System.out.println("Critical failure of function G");
 
        } else {
@@ -77,7 +86,30 @@ public class Manager {
        }
    }
 
+    private static void initProcesses()  {
+
+        ProcessBuilder processBuilderF = new ProcessBuilder("java", "ClientF.java");
+        ProcessBuilder processBuilderG = new ProcessBuilder("java", "ClientG.java");
+        Executor executor = Executors.newFixedThreadPool(2);
+
+        Runnable runnableF = () -> {
+            try {
+                processF = processBuilderF.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+        Runnable runnableG = () -> {
+            try {
+                 processG = processBuilderG.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+        executor.execute(runnableF);
+        executor.execute(runnableG);
+
+    }
 }
-
-
-
