@@ -39,20 +39,23 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void sendMessage(Optional<Double> result, String typeOfFunction){
-        String resultStr = result.map(integer -> typeOfFunction + integer).orElseGet(() -> typeOfFunction + "hard fail");
+        String resultStr = result.map(integer -> typeOfFunction + integer).orElseGet(() -> typeOfFunction + "c");
 
         try (AFUNIXSocket socket = AFUNIXSocket.newInstance()) {
             socket.connect( AFUNIXSocketAddress.of(socketFile));
             try (OutputStream outputStream = socket.getOutputStream()) {
-                String numberToSend = resultStr;
-                outputStream.write(numberToSend.getBytes());
-                System.out.println("Sent result to server: " + numberToSend);
-            }
+                outputStream.write(resultStr.getBytes());
 
+                if (resultStr.charAt(1) == 'c'){
+                    resultStr = "cancel";
+                } else{
+                    resultStr = resultStr.substring(1);
+                }
+                System.out.println("Sent result to server: " + resultStr);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
