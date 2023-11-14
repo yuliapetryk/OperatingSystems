@@ -7,7 +7,6 @@ import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-
 import org.newsclub.net.unix.AFUNIXServerSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 
@@ -74,17 +73,26 @@ public class Manager {
         if (elemF.charAt(1) == 'c') {
            System.out.println("Critical failure of function F");
 
-       } else if(elemG.charAt(1) == 'c') {
-           System.out.println("Critical failure of function G");
+        }else if(elemG.charAt(1) == 'c') {
+            System.out.println("Critical failure of function G");
 
-       } else {
+        }else if (elemF.charAt(1) == 't') {
+            System.out.println("Function F execution limit exceeded");
+
+        }else if(elemG.charAt(1) == 't') {
+            System.out.println("Function G execution limit exceeded");
+
+        }else {
            double resultF = Double.parseDouble(elemF.substring(1));
            double resultG = Double.parseDouble(elemG.substring(1));
-           double result = resultG + resultF;
 
-           System.out.println("The result of a binary operation = " + result);
+           System.out.println("The result of a binary operation = " + binaryOperation(resultF, resultG));
        }
    }
+
+    private static double binaryOperation(double resultF, double resultG){
+        return resultF + resultG;
+    }
 
     private static void initProcesses()  {
 

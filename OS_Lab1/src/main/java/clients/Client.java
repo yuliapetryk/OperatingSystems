@@ -6,23 +6,44 @@ import org.newsclub.net.unix.AFUNIXSocketAddress;
 
 import java.io.*;
 import java.util.Optional;
+import java.util.concurrent.*;
 
 public class Client {
     private final File socketFile = new File(new File(System.getProperty("java.io.tmpdir")), "junixsocket-test.sock");
     private Integer x;
 
+    private final long timeLimit = 1;
+
     public Client(String typeOfFunction) {
         readMessage();
-        Optional<Double> result =  Optional.empty();
-        switch (typeOfFunction) {
-            case "F":
-                result = Functions.functionF(x);
-                break;
-            case "G":
-                result = Functions.functionG(x);
-                break;
+
+        long startTime = System.currentTimeMillis();
+        String resultStr = typeOfFunction + "t";
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<Optional<Double>> future = executorService.submit(() -> {
+            switch (typeOfFunction) {
+                case "F":
+                    return Functions.functionF(x);
+                case "G":
+                    return Functions.functionG(x);
+                default:
+                    return Optional.empty();
+            }
+        });
+
+        try {
+            Optional<Double> result = future.get(timeLimit, TimeUnit.SECONDS);
+            long endTime = System.currentTimeMillis();
+            long elapsedTime = endTime - startTime;
+            resultStr = result.map(integer -> typeOfFunction + integer).orElseGet(() -> typeOfFunction + "c");
+
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.println("Execution timed out. ");
         }
-        sendMessage(result, typeOfFunction);
+
+        sendMessage(resultStr, typeOfFunction);
+        executorService.shutdownNow();
+
     }
 
     public void readMessage() {
@@ -41,9 +62,7 @@ public class Client {
         }
     }
 
-    private void sendMessage(Optional<Double> result, String typeOfFunction){
-        String resultStr = result.map(integer -> typeOfFunction + integer).orElseGet(() -> typeOfFunction + "c");
-
+    private void sendMessage(String resultStr, String typeOfFunction){
         try (AFUNIXSocket socket = AFUNIXSocket.newInstance()) {
             socket.connect( AFUNIXSocketAddress.of(socketFile));
             try (OutputStream outputStream = socket.getOutputStream()) {
@@ -51,7 +70,11 @@ public class Client {
 
                 if (resultStr.charAt(1) == 'c'){
                     resultStr = "cancel";
-                } else{
+
+                } else if (resultStr.charAt(1) == 't'){
+                    resultStr = "time out";
+
+                }else{
                     resultStr = resultStr.substring(1);
                 }
 
