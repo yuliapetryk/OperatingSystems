@@ -10,10 +10,7 @@ package org.example;
 
 import java.io.*;
 import java.util.*;
-import org.example.sProcess;
-import org.example.Common;
-import org.example.Results;
-import org.example.SchedulingAlgorithm;
+
 public class Scheduling {
 
   private static int processnum = 5;
@@ -98,7 +95,7 @@ public class Scheduling {
     if (!(f.exists())) {
       System.out.println("Scheduling: error, file '" + f.getName() + "' does not exist.");
       System.exit(-1);
-    }  
+    }
     if (!(f.canRead())) {
       System.out.println("Scheduling: error, read of " + f.getName() + " failed.");
       System.exit(-1);
@@ -118,7 +115,9 @@ public class Scheduling {
         i++;
       }
     }
-    result = SchedulingAlgorithm.Run(runtime, processVector, result);    
+    result = SchedulingAlgorithm.Run(runtime, processVector, result);
+    result.schedulingType = "Batch (Nonpreemptive)";
+    result.schedulingName = "Shortest process next";
     try {
       //BufferedWriter out = new BufferedWriter(new FileWriter(resultsFile));
       PrintStream out = new PrintStream(new FileOutputStream(resultsFile));

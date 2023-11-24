@@ -21,8 +21,7 @@ public class SchedulingAlgorithm {
     int completed = 0;
 
     String resultsFile = "Summary-Processes";
-    result.schedulingType = "Batch (Nonpreemptive)";
-    result.schedulingName = "Shortest process next";
+
 
     Collections.sort(setPriority(processVector), Comparator.comparingInt(sProcess::getPriority));
 
