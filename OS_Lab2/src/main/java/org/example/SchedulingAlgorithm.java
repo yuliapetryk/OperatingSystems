@@ -22,28 +22,27 @@ public class SchedulingAlgorithm {
 
     String resultsFile = "Summary-Processes";
 
-
     Collections.sort(setPriority(processVector), Comparator.comparingInt(sProcess::getPriority));
 
     try {
       PrintStream out = new PrintStream(new FileOutputStream(resultsFile));
       sProcess process = (sProcess) processVector.elementAt(currentProcess);
 
-      PriorityQueue<sProcess> processQueue = new PriorityQueue<>(Comparator.comparingDouble((sProcess proc) -> proc.time));
-      out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+      PriorityQueue<sProcess> processQueue = new PriorityQueue<>(Comparator.comparingDouble((sProcess proc) -> proc.getTime()));
+      out.println("Process: " + currentProcess + " registered... (" + process.getCputime() + " " + process.getIoblocking() + " " + process.getCpudone() + " " + process.getCpudone() + ")");
 
       while (comptime < runtime) {
         for (i = 0; i < size; i++) {
           sProcess actualProcess = (sProcess) processVector.elementAt(i);
-          if (actualProcess.isBlocked && comptime - actualProcess.executedTime == actualProcess.ioblocking) {
+          if (actualProcess.getIsBlocked() && comptime - actualProcess.getExecutedTime() == actualProcess.getIoblocking()) {
             processQueue.add(actualProcess);
-            actualProcess.isBlocked = false;
+            actualProcess.setIsBlocked( false);
           }
         }
 
-        if (process.cpudone == process.cputime) {
+        if (process.getCpudone() == process.getCputime()) {
           completed++;
-          out.println("Process: " + currentProcess + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+          out.println("Process: " + currentProcess + " completed... (" + process.getCputime() + " " + process.getIoblocking() + " " + process.getCpudone() + " " + process.getCpudone() + ")");
           if (completed == size) {
             result.compuTime = comptime;
             out.close();
@@ -53,24 +52,24 @@ public class SchedulingAlgorithm {
             process = processQueue.poll();
             out.println("Process: " + currentProcess + " registered... (" + process.toString() + ")");
         }
-        if (process.ioblocking == process.ionext) {
+        if (process.getIoblocking() == process.getIonext()) {
           out.println("Process: " + currentProcess + " I/O blocked... (" + process.toString() + ")");
-          process.numblocked++;
-          process.ionext = 0;
-          process.executedTime = comptime;
+          process.setNumblocked(process.getNumblocked() + 1);
+          process.setIonext(0);
+          process.setExecutedTime(comptime);
           previousProcess = currentProcess;
           for (i = size - 1; i >= 0; i--) {
             process = (sProcess) processVector.elementAt(i);
-            if (process.cpudone < process.cputime && previousProcess != i) {
+            if (process.getCpudone() < process.getCputime() && previousProcess != i) {
               currentProcess = i;
             }
           }
           process = (sProcess) processVector.elementAt(currentProcess);
-          out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+          out.println("Process: " + currentProcess + " completed... (" + process.getCputime() + " " + process.getIoblocking() + " " + process.getCpudone() + " " + process.getCpudone() + ")");
         }
-        process.cpudone++;
-        if (process.ioblocking > 0 && !process.isBlocked) {
-          process.ionext++;
+        process.setCpudone(process.getCpudone()+1);
+        if (process.getIoblocking() > 0 && !process.getIsBlocked()) {
+          process.setIonext(process.getIonext() + 1);
         }
         comptime++;
       }
@@ -86,11 +85,11 @@ public class SchedulingAlgorithm {
     processes.sort(Comparator.comparing(sProcess::getCputime).thenComparing(sProcess::getIoblocking));
 
     for (sProcess process : processes) {
-      if(prevTime < process.cputime) {
+      if(prevTime < process.getCputime()) {
         priority += 1;
       }
-      prevTime = process.cputime;
-      process.priority = priority;
+      prevTime = process.getCputime();
+      process.setPriority(priority);
     }
     return processes;
   }

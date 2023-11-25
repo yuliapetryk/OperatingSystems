@@ -1,15 +1,15 @@
 package org.example;
 
 public class sProcess {
-  public int cputime;
-  public int ioblocking;
-  public int cpudone;
-  public int ionext;
-  public int numblocked;
-  public boolean isBlocked;
-  public double time;
-  public int executedTime;
-  public int priority;
+  private int cputime;
+  private int ioblocking;
+  private int cpudone;
+  private int ionext;
+  private int numblocked;
+  private boolean isBlocked;
+  private double time;
+  private int executedTime;
+  private int priority;
 
   public sProcess (int cputime, int ioblocking, int cpudone, int ionext, int numblocked) {
     this.cputime = cputime;
@@ -31,4 +31,39 @@ public class sProcess {
     return this.priority;
   }
 
+  public void setPriority(int priority) { this.priority = priority; }
+
+  public int getCpudone() {
+    return this.cpudone;
+  }
+
+  public void setCpudone(int cpudone) {
+    this.cpudone = cpudone;
+  }
+
+  public int getIonext() {
+    return this.ionext;
+  }
+
+  public void setIonext(int ionext) {
+    this.ionext = ionext;
+  }
+
+  public int getNumblocked() {
+    return this.numblocked;
+  }
+
+  public  void setNumblocked(int numblocked) {
+    this.numblocked = numblocked;
+  }
+
+  public int getExecutedTime() { return this.executedTime; }
+
+  public void setExecutedTime(int executedTime) { this.executedTime = executedTime; }
+
+  public double getTime() { return this.time; }
+
+  public boolean getIsBlocked() { return this.isBlocked;}
+
+  public void setIsBlocked(boolean isBlocked) { this.isBlocked = isBlocked;}
 }
